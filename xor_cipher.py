@@ -47,6 +47,3 @@ def test_encrypt_decrypt_list():
     plaintext = XORCipher.encrypt_decrypt_list(ciphertext, key)
     print("Plaintext: ", plaintext)
     assert pt == XORCipher.to_string(plaintext)
-
-if __name__ == '__main__':
-    test_encrypt_decrypt_list()
