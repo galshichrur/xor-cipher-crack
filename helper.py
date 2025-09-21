@@ -12,6 +12,10 @@ def english_score(text: str) -> float:
     if not letters:
         return 0.0
 
+    n = len(text)
+    if n == 0:
+        return 0.0
+
     counts = {}
 
     for c in string.ascii_uppercase:
@@ -20,10 +24,11 @@ def english_score(text: str) -> float:
     chi_sq = 0.0
     for char, freq in Config.ENGLISH_FREQ.items():
         current = counts.get(char, 0)
-        expected = len(letters) * (freq / 100)
-        chi_sq += (current - expected) ** 2 / (expected + 1e-9)
+        expected = n * (freq / 100)
+        if expected > 0:
+            chi_sq += (current - expected) ** 2 / expected
 
-    return 1.0 / (1.0 + chi_sq)
+    return 1.0 / (1.0 + chi_sq / n)
 
 def printable_chars_ratio(text: str) -> float:
     """

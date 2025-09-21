@@ -28,7 +28,10 @@ def score_guesses(bruteforce_iter: Iterator[tuple[str, str]]) -> list[tuple[floa
     guesses = []
 
     for key, decrypted in bruteforce_iter:
-        score = Config.ENGLISH_WEIGHT * english_score(decrypted) + Config.PRINTABLE_WEIGHT * printable_chars_ratio(decrypted)   # Calculate score.
+        # Calculate score.
+        freq_score = Config.ENGLISH_WEIGHT * english_score(decrypted)
+        printable_score = Config.PRINTABLE_WEIGHT * printable_chars_ratio(decrypted)
+        score = freq_score + printable_score
         guesses.append((score, key, decrypted))
 
     guesses.sort(key=lambda guess: guess[0], reverse=True)  # Sort by score.
