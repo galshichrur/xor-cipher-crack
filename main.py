@@ -1,5 +1,6 @@
 import click
 from bruteforce import guess_keys, score_guesses
+from config import Config
 from llm_local import sort_guesses_by_llm
 from xor_cipher import XORCipher
 
@@ -40,10 +41,10 @@ def main(path: str, key_size: int, int_list: bool, llm: bool, model: str, top: i
         ct_ascii_list = XORCipher.to_ascii_list(ciphertext)
 
     print(f"Ciphertext ASCII int list:\t{ct_ascii_list[:15]}...")
-    bruteforce_iter = guess_keys(ct_ascii_list, key_size)
-    print("Starting bruteforce...")
-    guesses = score_guesses(bruteforce_iter)
-    print("Successfully sorted guesses!")
+    guesses_iter = guess_keys(ct_ascii_list, key_size)
+
+    guesses = score_guesses(guesses_iter, len(Config.ALLOWED_KEY_CHARS) ** key_size)
+
     print(f"Top {top} guesses:")
     for i, guess in enumerate(guesses[:top]):
         print(f"Guess #{i+1}\tScore: {guess[0]}\t Key: {guess[1]}\t Plaintext: {guess[2][:50]}...")

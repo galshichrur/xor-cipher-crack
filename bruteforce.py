@@ -3,6 +3,7 @@ from xor_cipher import XORCipher
 from key_gen import generate_all_keys
 from helper import english_score, printable_chars_ratio
 from config import Config
+import click
 
 
 def guess_keys(ciphertext: list[int], key_size: int) -> Iterator[tuple[str, str]]:
@@ -19,7 +20,7 @@ def guess_keys(ciphertext: list[int], key_size: int) -> Iterator[tuple[str, str]
         yield key, XORCipher.to_string(decrypted)
 
 
-def score_guesses(bruteforce_iter: Iterator[tuple[str, str]]) -> list[tuple[float, str, str]]:
+def score_guesses(guesses_iter: Iterator[tuple[str, str]], total: int) -> list[tuple[float, str, str]]:
     """
     Take guesses (key, decrypted ciphertext) and add score.
     Returns a sorted list of (key, decrypted ciphertext, score), highest score first.
@@ -27,14 +28,20 @@ def score_guesses(bruteforce_iter: Iterator[tuple[str, str]]) -> list[tuple[floa
 
     guesses = []
 
-    for key, decrypted in bruteforce_iter:
-        # Calculate score.
-        freq_score = Config.ENGLISH_WEIGHT * english_score(decrypted)
-        printable_score = Config.PRINTABLE_WEIGHT * printable_chars_ratio(decrypted)
-        score = freq_score + printable_score
-        guesses.append((score, key, decrypted))
+    print("Starting scoring guesses...")
 
+    with click.progressbar(guesses_iter, total, label="Scoring guesses...") as bar:
+        for key, decrypted in bar:
+            # Calculate score.
+            freq_score = Config.ENGLISH_WEIGHT * english_score(decrypted)
+            printable_score = Config.PRINTABLE_WEIGHT * printable_chars_ratio(decrypted)
+            score = freq_score + printable_score
+            guesses.append((score, key, decrypted))
+
+    print("Starting sorting scored guesses...")
     guesses.sort(key=lambda guess: guess[0], reverse=True)  # Sort by score.
+    print("Successfully sorted guesses!")
+
     return guesses
 
 
